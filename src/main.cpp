@@ -8,29 +8,34 @@
 
 namespace fs = std::filesystem;
 
-enum DisasmMode {
-    disassemble,
-    compile
-};
+enum DisasmMode { disassemble, compile };
 
 void printUsage(const std::string& fileName) {
     std::printf("Usage: %s [--options] -f <input file>\n", fileName.c_str());
     std::printf("\n");
     std::printf("Available options:\n");
     std::printf("\t-h, --help: Display this help message.\n");
-    std::printf("\t-c, --compile: Enable compilation mode. Requires -o <output file>.\n");
-    std::printf("\t-f <input file>, --file <input file>: Provide a Luau bytecode/source file to be disassembled/compiled.\n");
-    std::printf("\t-o <output file>, --output <output file>: Output file for disassembly/compilation (NOTE: required for compilation mode).\n");
-    std::printf("\t-e <multiplier>, --encode <multiplier>: Multiplier for encoding/decoding instructions.\n");
+    std::printf(
+        "\t-c, --compile: Enable compilation mode. Requires -o <output "
+        "file>.\n");
+    std::printf(
+        "\t-f <input file>, --file <input file>: Provide a Luau "
+        "bytecode/source file to be disassembled/compiled.\n");
+    std::printf(
+        "\t-o <output file>, --output <output file>: Output file for "
+        "disassembly/compilation (NOTE: required for compilation mode).\n");
+    std::printf(
+        "\t-e <multiplier>, --encode <multiplier>: Multiplier for "
+        "encoding/decoding instructions.\n");
 }
 
-static int assertionHandler(const char* expr, const char* file, int line, const char* function)
-{
+static int assertionHandler(const char* expr, const char* file, int line,
+                            const char* function) {
     printf("%s(%d): ASSERTION FAILED: %s\n", file, line, expr);
     return 1;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc == 1) {
         std::printf("Error: no input file specified.\n");
         printUsage(argv[0]);
@@ -52,7 +57,7 @@ int main(int argc, char *argv[]) {
         printUsage(argv[0]);
         return 0;
     }
-    
+
     if (!parser.doesArgExist("-f") && !parser.doesArgExist("--file")) {
         std::printf("Error: no input file specified.\n");
         printUsage(argv[0]);
@@ -61,7 +66,8 @@ int main(int argc, char *argv[]) {
 
     if (parser.doesArgExist("-c") || parser.doesArgExist("--compile")) {
         if (!parser.doesArgExist("-o") && !parser.doesArgExist("--output")) {
-            std::printf("Error: please specify output file using `-o <filename>`\n");
+            std::printf(
+                "Error: please specify output file using `-o <filename>`\n");
             return 0;
         }
         mode = DisasmMode::compile;
@@ -97,14 +103,16 @@ int main(int argc, char *argv[]) {
 
     Luau::assertHandler() = assertionHandler;
 
-    inputFileData = std::ifstream(inputFilePath, std::ios::in | std::ios::binary);
+    inputFileData =
+        std::ifstream(inputFilePath, std::ios::in | std::ios::binary);
     inputFileStream << inputFileData.rdbuf();
 
     if (mode == DisasmMode::compile) {
         Compiler compiler(inputFileStream.str());
 
         if (!compiler.compile()) {
-            std::printf("Syntax error: %s\n", compiler.getBytecode().c_str() + 1);
+            std::printf("Syntax error: %s\n",
+                        compiler.getBytecode().c_str() + 1);
             return 0;
         }
 
@@ -114,7 +122,8 @@ int main(int argc, char *argv[]) {
 
         std::printf("Bytecode written to %s!\n", outputFileName.c_str());
     } else {
-        Disassembler disassembler(inputFileStream.str(), encodeMult, encodeMult != 1);
+        Disassembler disassembler(inputFileStream.str(), encodeMult,
+                                  encodeMult != 1);
 
         if (!disassembler.disassemble()) {
             std::printf("Disassembler error: input bytecode is invalid.\n");
@@ -122,7 +131,8 @@ int main(int argc, char *argv[]) {
         }
 
         if (shouldOutput) {
-            outputFileStream.open(outputFileName, std::ios::out | std::ios::binary);
+            outputFileStream.open(outputFileName,
+                                  std::ios::out | std::ios::binary);
             outputFileStream << disassembler.getStreamData();
             outputFileStream.close();
         } else {
