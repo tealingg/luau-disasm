@@ -72,6 +72,7 @@ const std::map<std::uint8_t, std::string> opcodeMap = {
     {LOP_FORNLOOP, "FORNLOOP"},
     {LOP_FORGLOOP, "FORGLOOP"},
     {LOP_FORGPREP_INEXT, "FORGPREP_INEXT"},
+    {LOP_FASTCALL3, "FASTCALL3"},
     {LOP_FORGPREP_NEXT, "FORGPREP_NEXT"},
     {LOP_NATIVECALL, "NATIVECALL"},
     {LOP_GETVARARGS, "GETVARARGS"},
@@ -82,6 +83,8 @@ const std::map<std::uint8_t, std::string> opcodeMap = {
     {LOP_FASTCALL, "FASTCALL"},
     {LOP_COVERAGE, "COVERAGE"},
     {LOP_CAPTURE, "CAPTURE"},
+    {LOP_SUBRK, "SUBRK"},
+    {LOP_DIVRK, "DIVRK"},
     {LOP_FASTCALL1, "FASTCALL1"},
     {LOP_FASTCALL2, "FASTCALL2"},
     {LOP_FASTCALL2K, "FASTCALL2K"},
@@ -89,7 +92,15 @@ const std::map<std::uint8_t, std::string> opcodeMap = {
     {LOP_JUMPXEQKNIL, "JUMPXEQKNIL"},
     {LOP_JUMPXEQKB, "JUMPXEQKB"},
     {LOP_JUMPXEQKN, "JUMPXEQKN"},
-    {LOP_JUMPXEQKS, "JUMPXEQKS"}};
+    {LOP_JUMPXEQKS, "JUMPXEQKS"},
+    {LOP_IDIV, "IDIV"},
+    {LOP_IDIVK, "IDIVK"},
+    {LOP_GETUDATAKS, "GETUDATAKS"},
+    {LOP_SETUDATAKS, "SETUDATAKS"},
+    {LOP_NAMECALLUDATA, "NAMECALLUDATA"},
+    {LOP_NEWCLASSMEMBER, "NEWCLASSMEMBER"},
+    {LOP_CALLFB, "CALLFB"},
+};
 
 std::map<std::uint8_t, std::string> builtinFunctionMap = {
     {LBF_NONE, "none"},
@@ -153,7 +164,97 @@ std::map<std::uint8_t, std::string> builtinFunctionMap = {
     {LBF_RAWLEN, "rawlen"},
     {LBF_BIT32_EXTRACTK, "bit32.extract"},
     {LBF_GETMETATABLE, "getmetatable"},
-    {LBF_SETMETATABLE, "setmetatable"}};
+    {LBF_SETMETATABLE, "setmetatable"},
+
+    // tonumber/tostring
+    {LBF_TONUMBER, "tonumber"},
+    {LBF_TOSTRING, "tostring"},
+
+    // bit32.byteswap(n)
+    {LBF_BIT32_BYTESWAP, "bit32.byteswap"},
+
+    // buffer.
+    {LBF_BUFFER_READI8, "buffer.readi8"},
+    {LBF_BUFFER_READU8, "buffer.readu8"},
+    {LBF_BUFFER_WRITEU8, "buffer.writeu8"},
+    {LBF_BUFFER_READI16, "buffer.readi16"},
+    {LBF_BUFFER_READU16, "buffer.readu16"},
+    {LBF_BUFFER_WRITEU16, "buffer.writeu16"},
+    {LBF_BUFFER_READI32, "buffer.readi32"},
+    {LBF_BUFFER_READU32, "buffer.readu32"},
+    {LBF_BUFFER_WRITEU32, "buffer.writeu32"},
+    {LBF_BUFFER_READF32, "buffer.readf32"},
+    {LBF_BUFFER_WRITEF32, "buffer.writef32"},
+    {LBF_BUFFER_READF64, "buffer.readf64"},
+    {LBF_BUFFER_WRITEF64, "buffer.writef64"},
+
+    // vector.
+    {LBF_VECTOR_MAGNITUDE, "vector.magnitude"},
+    {LBF_VECTOR_NORMALIZE, "vector.normalize"},
+    {LBF_VECTOR_CROSS, "vector.cross"},
+    {LBF_VECTOR_DOT, "vector.dot"},
+    {LBF_VECTOR_FLOOR, "vector.floor"},
+    {LBF_VECTOR_CEIL, "vector.ceil"},
+    {LBF_VECTOR_ABS, "vector.abs"},
+    {LBF_VECTOR_SIGN, "vector.sign"},
+    {LBF_VECTOR_CLAMP, "vector.clamp"},
+    {LBF_VECTOR_MIN, "vector.min"},
+    {LBF_VECTOR_MAX, "vector.max"},
+
+    // math.lerp
+    {LBF_MATH_LERP, "math.lerp"},
+
+    // vector.lerp
+    {LBF_VECTOR_LERP, "vector.lerp"},
+
+    // math.
+    {LBF_MATH_ISNAN, "math.isnan"},
+    {LBF_MATH_ISINF, "math.isinf"},
+    {LBF_MATH_ISFINITE, "math.isfinite"},
+
+    /*// integer
+    {LBF_INTEGER_CREATE, "integer.create"},
+    {LBF_INTEGER_TONUMBER, "integer.tonumber"},
+    {LBF_INTEGER_NEG, "integer.neg"},
+    {LBF_INTEGER_ADD, "integer.add"},
+    {LBF_INTEGER_SUB, "integer.sub"},
+    {LBF_INTEGER_MUL, "integer.mul"},
+    {LBF_INTEGER_DIV, "integer.div"},
+    {LBF_INTEGER_MIN, "integer.min"},
+    {LBF_INTEGER_MAX, "integer.max"},
+    {LBF_INTEGER_REM, "integer.rem"},
+    {LBF_INTEGER_IDIV, "integer.idiv"},
+    {LBF_INTEGER_UDIV, "integer.udiv"},
+    {LBF_INTEGER_UREM, "integer.urem"},
+    {LBF_INTEGER_MOD, "integer.mod"},
+    {LBF_INTEGER_CLAMP, "integer.clamp"},
+    {LBF_INTEGER_BAND, "integer.band"},
+    {LBF_INTEGER_BOR, "integer.bor"},
+    {LBF_INTEGER_BNOT, "integer.bnot"},
+    {LBF_INTEGER_BXOR, "integer.bxor"},
+    {LBF_INTEGER_LT, "integer.lt"},
+    {LBF_INTEGER_LE, "integer.le"},
+    {LBF_INTEGER_ULT, "integer.ult"},
+    {LBF_INTEGER_ULE, "integer.ule"},
+    {LBF_INTEGER_GT, "integer.gt"},
+    {LBF_INTEGER_GE, "integer.ge"},
+    {LBF_INTEGER_UGT, "integer.ugt"},
+    {LBF_INTEGER_UGE, "integer.uge"},
+    {LBF_INTEGER_LSHIFT, "integer.lshift"},
+    {LBF_INTEGER_RSHIFT, "integer.rshift"},
+    {LBF_INTEGER_ARSHIFT, "integer.arshift"},
+    {LBF_INTEGER_LROTATE, "integer.lrotate"},
+    {LBF_INTEGER_RROTATE, "integer.rrotate"},
+    {LBF_INTEGER_EXTRACT, "integer.extract"},
+    {LBF_INTEGER_BTEST, "integer.btest"},
+    {LBF_INTEGER_COUNTRZ, "integer.countrz"},
+    {LBF_INTEGER_COUNTLZ, "integer.countlz"},
+    {LBF_INTEGER_BSWAP, "integer.byteswap"},
+
+    // buffer.readinteger / buffer.writeinteger (int64_t)
+    {LBF_BUFFER_READINTEGER, "buffer.readinteger"},
+    {LBF_BUFFER_WRITEINTEGER, "buffer.writeinteger"},*/
+};
 
 void Disassembler::write(const char* format, ...) {
     char buffer[1024];
@@ -183,6 +284,9 @@ void Disassembler::decodeInstructions(Proto* p) {
             }
 
             std::uint32_t newInstruction;
+
+            // TODO: when bytecode version goes past 6, or the latest few come
+            // out of experimental, add their opcodes here
 
             // replace the instruction by each type
             switch (newOpcode) {
@@ -226,10 +330,13 @@ void Disassembler::decodeInstructions(Proto* p) {
                 case LOP_LENGTH:
                 case LOP_NEWTABLE:
                 case LOP_SETLIST:
+                case LOP_FASTCALL3:
                 case LOP_GETVARARGS:
                 case LOP_PREPVARARGS:
                 case LOP_FASTCALL:
                 case LOP_CAPTURE:
+                case LOP_SUBRK:
+                case LOP_DIVRK:
                 case LOP_FASTCALL1:
                 case LOP_FASTCALL2:
                 case LOP_FASTCALL2K: {
@@ -266,7 +373,9 @@ void Disassembler::decodeInstructions(Proto* p) {
                 case LOP_JUMPXEQKNIL:
                 case LOP_JUMPXEQKB:
                 case LOP_JUMPXEQKN:
-                case LOP_JUMPXEQKS: {
+                case LOP_JUMPXEQKS:
+                case LOP_IDIV:
+                case LOP_IDIVK: {
                     newInstruction = std::uint32_t(newOpcode) |
                                      (LUAU_INSN_A(instruction) << 8) |
                                      (LUAU_INSN_D(instruction) << 16);
@@ -303,6 +412,7 @@ void Disassembler::decodeInstructions(Proto* p) {
                 case LOP_JUMPIFNOTLT:
                 case LOP_NEWTABLE:
                 case LOP_SETLIST:
+                case LOP_FASTCALL3:
                 case LOP_FORGLOOP:
                 case LOP_LOADKX:
                 case LOP_FASTCALL2:
@@ -684,6 +794,31 @@ void Disassembler::processProto(Proto* p, Proto* parent) {
                 this->write("%d %d\n", LUAU_INSN_A(insn), LUAU_INSN_B(insn));
                 break;
             }
+            case LOP_SUBRK:
+            case LOP_DIVRK: {
+                TValue* k = &p->k[LUAU_INSN_B(insn)];
+                this->write("%d %d %d --> ", LUAU_INSN_A(insn),
+                            LUAU_INSN_B(insn), LUAU_INSN_C(insn));
+                switch (ttype(k)) {
+                    case LUA_TBOOLEAN: {
+                        this->write("%s\n", bvalue(k) ? "true" : "false");
+                        break;
+                    }
+                    case LUA_TNUMBER: {
+                        this->write("%f\n", nvalue(k));
+                        break;
+                    }
+                    case LUA_TSTRING: {
+                        this->write("'%s'\n", svalue(k));
+                        break;
+                    }
+                    default: {
+                        this->write("%s\n", luaT_typenames[ttype(k)]);
+                        break;
+                    }
+                }
+                break;
+            }
             case LOP_FASTCALL1: {
                 this->write(
                     "%d %d %d --> '%s'\n", LUAU_INSN_A(insn), LUAU_INSN_B(insn),
@@ -695,6 +830,15 @@ void Disassembler::processProto(Proto* p, Proto* parent) {
                 this->write(
                     "%d %d %d %d --> '%s'\n", LUAU_INSN_A(insn),
                     LUAU_INSN_B(insn), LUAU_INSN_C(insn), p->code[++i],
+                    builtinFunctionMap.find(LUAU_INSN_A(insn))->second.c_str());
+                break;
+            }
+            case LOP_FASTCALL3: {
+                auto aux = p->code[++i];
+                this->write(
+                    "%d %d %d %d %d --> '%s'\n", LUAU_INSN_A(insn),
+                    LUAU_INSN_B(insn), LUAU_INSN_C(insn), (aux & 0xFF),
+                    ((aux >> 8) & 0xFF),
                     builtinFunctionMap.find(LUAU_INSN_A(insn))->second.c_str());
                 break;
             }
@@ -762,6 +906,35 @@ void Disassembler::processProto(Proto* p, Proto* parent) {
                 }
                 this->write(", NOT: %s\n",
                             (p->code[i] >> 31) ? "true" : "false");
+                break;
+            }
+            case LOP_IDIV: {
+                this->write("%d %d %d\n", LUAU_INSN_A(insn), LUAU_INSN_B(insn),
+                            LUAU_INSN_C(insn));
+                break;
+            }
+            case LOP_IDIVK: {
+                TValue* k = &p->k[LUAU_INSN_C(insn)];
+                this->write("%d %d %d --> ", LUAU_INSN_A(insn),
+                            LUAU_INSN_B(insn), LUAU_INSN_C(insn));
+                switch (ttype(k)) {
+                    case LUA_TBOOLEAN: {
+                        this->write("%s\n", bvalue(k) ? "true" : "false");
+                        break;
+                    }
+                    case LUA_TNUMBER: {
+                        this->write("%f\n", nvalue(k));
+                        break;
+                    }
+                    case LUA_TSTRING: {
+                        this->write("'%s'\n", svalue(k));
+                        break;
+                    }
+                    default: {
+                        this->write("%s\n", luaT_typenames[ttype(k)]);
+                        break;
+                    }
+                }
                 break;
             }
             default: {
