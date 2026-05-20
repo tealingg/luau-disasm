@@ -16,4 +16,4 @@ option(LUAU_STATIC_CRT "Link with the static CRT (/MT)" OFF)
 
 include(sources.cmake)
 
-target_link_libraries(luau-disasm PRIVATE Luau.Compiler Luau.VM)
+target_link_libraries(luau-disasm PRIVATE Luau.Analysis Luau.Compiler Luau.VM)

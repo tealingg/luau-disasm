@@ -3,6 +3,7 @@ target_sources(luau-disasm PRIVATE
     src/ArgParser.cpp
     src/Compiler.cpp
     src/Disassembler.cpp
+    src/AstDumper.cpp
 
     # luau/VM/src/lapi.h
     # luau/VM/src/lbuffer.h

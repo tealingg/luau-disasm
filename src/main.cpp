@@ -3,12 +3,13 @@
 #include <sstream>
 
 #include "ArgParser.hpp"
+#include "AstDumper.hpp"
 #include "Compiler.hpp"
 #include "Disassembler.hpp"
 
 namespace fs = std::filesystem;
 
-enum DisasmMode { disassemble, compile };
+enum DisasmMode { disassemble, compile, dump };
 
 void printUsage(const std::string& fileName) {
     std::printf("Usage: %s [--options] -f <input file>\n", fileName.c_str());
@@ -18,6 +19,8 @@ void printUsage(const std::string& fileName) {
     std::printf(
         "\t-c, --compile: Enable compilation mode. Requires -o <output "
         "file>.\n");
+    std::printf(
+        "\t-d, --dump-ast: Dump the AST of the input source file as JSON.\n");
     std::printf(
         "\t-f <input file>, --file <input file>: Provide a Luau "
         "bytecode/source file to be disassembled/compiled.\n");
@@ -71,6 +74,8 @@ int main(int argc, char* argv[]) {
             return 0;
         }
         mode = DisasmMode::compile;
+    } else if (parser.doesArgExist("-d") || parser.doesArgExist("--dump-ast")) {
+        mode = DisasmMode::dump;
     }
 
     fileName = parser.getArgValue("-f");
@@ -121,6 +126,22 @@ int main(int argc, char* argv[]) {
         outputFileStream.close();
 
         std::printf("Bytecode written to %s!\n", outputFileName.c_str());
+    } else if (mode == DisasmMode::dump) {
+        AstDumper dumper(inputFileStream.str());
+
+        if (!dumper.dump()) {
+            std::printf("Error dumping AST: %s\n", dumper.getAstJson().c_str());
+            return 0;
+        }
+
+        if (shouldOutput) {
+            outputFileStream.open(outputFileName,
+                                  std::ios::out | std::ios::binary);
+            outputFileStream << dumper.getAstJson();
+            outputFileStream.close();
+        } else {
+            std::printf("%s\n", dumper.getAstJson().c_str());
+        }
     } else {
         Disassembler disassembler(inputFileStream.str(), encodeMult,
                                   encodeMult != 1);
