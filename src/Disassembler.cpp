@@ -268,17 +268,25 @@ void Disassembler::write(const char* format, ...) {
 
 void Disassembler::decodeInstructions(Proto* p) {
     if (this->shouldDecode) {
+        if (p->flags ==
+            0xFF) {  // for some reason i was having weird issues with roblox
+                     // bytecode, where some protos are being decoded multiple
+                     // times. since we don't use p->flags, we can mark a
+                     // function as decoded like this and it seems to fix the
+                     // issue.
+            return;
+        }
+        p->flags = 0xFF;
         for (int i = 0; i < p->sizecode; i++) {
             std::uint32_t instruction = p->code[i];
             std::uint8_t opcode = LUAU_INSN_OP(instruction);
 
-            auto it = std::find(this->opcodeDecodeTable.begin(),
-                                this->opcodeDecodeTable.end(), opcode);
+            auto it = this->opcodeDecodeTable.find(opcode);
 
             std::uint8_t newOpcode;
 
             if (it != this->opcodeDecodeTable.end()) {
-                newOpcode = it - this->opcodeDecodeTable.begin();
+                newOpcode = it->second;
             } else {
                 newOpcode = opcode;
             }
