@@ -1,5 +1,5 @@
 # luau-disasm
-this is my really fucking shit attempt at writing a luau disassembler.
+this is my really awful attempt at writing a luau disassembler.
 
 luau-disasm can both compile lua(u) scripts into luau bytecode, and disassemble luau bytecode from files.
 
